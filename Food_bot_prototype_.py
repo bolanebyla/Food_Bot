@@ -26,13 +26,10 @@ def start_message(message:Message):
     bot.send_message(message.chat.id,'Привет, я test2_bot!', reply_markup=keyboard_main_menu())
     print ('Start')
 
-    #bot.send_photo(message.chat.id, open('KFC(Twister)_Box_master_original.png', 'rb'))
+    basket = open('basket_'+str(message.chat.id)+'.txt', 'w')
 
-# /new
-@bot.message_handler(commands=['new'])
-def new(message:Message):
-    global b1
-    b1 = Basket.Basket(123, message.from_user.id)
+
+
 
 # /add
 @bot.message_handler(commands=['add'])
@@ -113,6 +110,7 @@ def keyboard_menu_list(c, category, chat_id):
     keyboard = types.InlineKeyboardMarkup()
     bot.send_message(chat_id, 'Категория '+category)
     id_rest = c.id_rest
+    
     for i in range(len(c.menu)):#-1
         if c.menu[i][0] == category:
             food_name = c.menu[i][1]
@@ -135,6 +133,11 @@ def keyboard_menu_list(c, category, chat_id):
 @bot.callback_query_handler(func=lambda message:True)
 def ans(message:Message):
     chat_id = message.message.chat.id
+
+
+    # После кнопки оплатить
+    #if message.data[:-3] == 'pay':
+
 
     # После выбора ТЦ
     # Проверяем есть ли у выбранного ТЦ фудкорты
@@ -175,23 +178,77 @@ def ans(message:Message):
         id_rest = message.data[:-9]
 
         food_name = ''
+        food_prise = ''
         k = -9
+        f = False
         for i in message.data[9:-3]:
-            if i == '*':
-                break
-            if i!='*':
+            if i=='*':
+                f=True
+
+            if i!='*' and f == False :
                 food_name = food_name+i
-                print(i)
-                k+=1
-        print(food_name)
+                
+            elif i!='*' and f == True :
+                food_prise = food_prise+i
+            k+=1
+        
+        basket = open('basket_' + str(chat_id)+'.txt', 'r')
 
-
-
+        s = basket.readlines()
+        print('После нажатия кнопки =',s)
+        if s==[]:
+            s=[food_name+' 0\n']
+            sum = 0
+        else:
+            print('Когда что-то есть')
+           
+            sum = int(s[-1][7:-1])
+            s = s[:-1]
+            print(s)
             
+        l = len(food_name)
+        
+        f = True
+        for i in range(len(s)):
+            if s[i][:l] == food_name:
+                f = False
+                kol = int(s[i][l+1:-1])
+                kol = kol + 1
+                print(food_prise)
+                sum = sum +int(food_prise)
+                s[i]=food_name+ ' ' +str(kol)+'\n'
+
+                
+                basket = open ('basket_'+str(chat_id)+'.txt', 'w')
+                for i in range(len(s)):
+                    if i!=len(s):
+                        basket.write(s[i])
+                
+                break 
+        if f:
+            print('Добавлена водка')
+            #basket = open ('basket_'+str(chat_id)+'.txt', 'a')
+            #basket.writelines(food_name+' 1\n')
+            s=s+[food_name+' 1\n']
+            basket = open ('basket_'+str(chat_id)+'.txt', 'w')
+            for i in range(len(s)):
+                if i!=len(s):
+                    basket.write(s[i])
+
+            sum = sum +int(food_prise)
+        print('печатает сумму', sum)
+        basket.write('Итого: '+str(sum)+'\n')
+
+
+    
+
+       # with open ('basket_'+str(chat_id)+'.txt', 'a') as basket:
+        #    basket.write(food_name + ' ' + kol )
+        #print('basket_'+str(chat_id)+'.txt')
+
 
     # Нажатие кнопки Удалить из корзину 1 шт.
-    print(message.data)
-    print(message.data[9:-3])
+
 
                 
 
@@ -205,6 +262,8 @@ def ans(message:Message):
 # Обработка сообщений
 @bot.message_handler(content_types=['text'])
 def txt(message:Message):
+    
+
     if message.text == 'Новый заказ':
         bot.send_message(message.chat.id, "Выберите торговый центр", reply_markup = keyboard_TC_list())
         
