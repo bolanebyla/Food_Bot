@@ -175,7 +175,18 @@ def ans(message:Message):
 
     # Нажатие кнопки Добавить в корзину 1 шт.
     if message.data[-3:] == 'add':
-        id_rest = message.data[:-9]
+        id_rest_new = message.data[:9]
+
+        basket = open('basket_' + str(chat_id)+'.txt', 'r')
+        s = basket.readlines()
+        if s ==[]:
+            id_rest = id_rest_new
+        else:
+            id_rest = s[-1][:9]
+
+        if id_rest_new != id_rest :
+            basket = open('basket_' + str(chat_id)+'.txt', 'w')
+            bot.send_message(chat_id, 'Корзина обновлена')
 
         food_name = ''
         food_prise = ''
@@ -195,14 +206,15 @@ def ans(message:Message):
         basket = open('basket_' + str(chat_id)+'.txt', 'r')
 
         s = basket.readlines()
-        print('После нажатия кнопки =',s)
+        print('После нажатия кнопки =', s)
         if s==[]:
             s=[food_name+' 0\n']
             sum = 0
         else:
             print('Когда что-то есть')
-           
-            sum = int(s[-1][7:-1])
+            print(s[-1])
+            sum = int(s[-1][16:-1])
+
             s = s[:-1]
             print(s)
             
@@ -214,48 +226,37 @@ def ans(message:Message):
                 f = False
                 kol = int(s[i][l+1:-1])
                 kol = kol + 1
-                print(food_prise)
+                
                 sum = sum +int(food_prise)
                 s[i]=food_name+ ' ' +str(kol)+'\n'
 
-                
                 basket = open ('basket_'+str(chat_id)+'.txt', 'w')
                 for i in range(len(s)):
-                    if i!=len(s):
-                        basket.write(s[i])
-                
+                    basket.write(s[i])
                 break 
+
+
+        bot.send_message(chat_id, 'Добавлено в корзину:\n' + food_name + '1 шт.')
+
         if f:
             print('Добавлена водка')
-            #basket = open ('basket_'+str(chat_id)+'.txt', 'a')
-            #basket.writelines(food_name+' 1\n')
             s=s+[food_name+' 1\n']
             basket = open ('basket_'+str(chat_id)+'.txt', 'w')
             for i in range(len(s)):
-                if i!=len(s):
-                    basket.write(s[i])
-
+                basket.write(s[i])
             sum = sum +int(food_prise)
-        print('печатает сумму', sum)
-        basket.write('Итого: '+str(sum)+'\n')
+
+        basket.write(id_rest_new+'Итого: '+str(sum)+'\n')
+
 
 
     
-
-       # with open ('basket_'+str(chat_id)+'.txt', 'a') as basket:
-        #    basket.write(food_name + ' ' + kol )
-        #print('basket_'+str(chat_id)+'.txt')
 
 
     # Нажатие кнопки Удалить из корзину 1 шт.
 
 
                 
-
-
-
-
-
 
 
 
