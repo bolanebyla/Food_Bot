@@ -26,11 +26,15 @@ def start_message(message:Message):
     bot.send_message(message.chat.id,'Привет, я test2_bot!', reply_markup=keyboard_main_menu())
     print ('Start')
     chat_id = str(message.chat.id)
-    basket = open('basket_'+str(message.chat.id)+'.txt', 'w')
+    #basket = open('basket_'+str(message.chat.id)+'.txt', 'w')
+    cleaning_basket(chat_id)
+
     order_list = open('order_list_'+str(message.chat.id)+'.txt', 'w')
     order_list.write('t' + chat_id[:4]+'1000\n')
 
 
+def cleaning_basket(chat_id):
+     basket = open('basket_'+str(chat_id)+'.txt', 'w')
 
 
 
@@ -338,6 +342,15 @@ def ans(message:Message):
         order = open(new_order + '.txt', 'w')
         order.write(s_out)
 
+        cleaning_basket(chat_id)
+
+
+    #Нажатие кнопки Очистить корзину 
+    if message.data=='clean_basket':
+        cleaning_basket(chat_id)
+        bot.send_message(chat_id,'Корзина очищена😌')
+
+
 
          #После оплаты
     if message.data[-3:]=='pay':
@@ -368,10 +381,10 @@ def ans(message:Message):
            else: order=order+i
         keyboard.add(types.InlineKeyboardButton(text=done, callback_data = id_order + 'done'))
         bot.send_message('-343953923','Заказ №'+id_order+'\n'+order, reply_markup=keyboard) 
-        bot.send_message(data[1],'Ваша заказ № '+id_order+' принят! Ожидайте сообщения о готовности:)')
+        bot.send_message(data[1],'Ваша заказ № '+id_order+' принят!\n' +
+                        'Ожидайте сообщения о готовности😊🕐')
 
         
-
     # Когда заказ выполнен
     if message.data[-4:]=='done':
         id_order=message.data[:9]
@@ -381,17 +394,11 @@ def ans(message:Message):
         for i in data[2]:
            if i=='*':order=order+'\n'
            else: order=order+i
-        bot.send_message(data[1],'Ваша заказ № '+id_order+' готов! Пройдите к стойке приема)')
+        bot.send_message(data[1],'Ваша заказ № '+id_order+' готов! Пройдите к стойке выдачи заказа\n'+
+                         'Приятного аппетита☺️')
         file.close()
 
         
-
-
-
-
-
-                
-
 
 
 # Обработка сообщений
@@ -409,31 +416,36 @@ def txt(message:Message):
         bas_out= ''
         basket = open('basket_' + str(message.chat.id)+'.txt', 'r')
         s = basket.readlines()
-        id_rest = s[-1][:9]
-        for i in range(len(s)-1):
-            bas_out = str(bas_out + s[i][:-1]) + ' шт.\n'
+
+        if s !=[]:
+
+            id_rest = s[-1][:9]
+            for i in range(len(s)-1):
+                bas_out = str(bas_out + s[i][:-1]) + ' шт.\n'
 
            
-        s[-1]=s[-1][9:-1]+' руб'
-        bas_out = bas_out + '\n' + s[-1]
+            s[-1]=s[-1][9:-1]+' руб'
+            bas_out = bas_out + '\n' + s[-1]
 
-        for i in Restaurants.res_list:
-            if i.id_rest == id_rest: 
-                restauran_name = i.name
-                break
+            for i in Restaurants.res_list:
+                if i.id_rest == id_rest: 
+                    restauran_name = i.name
+                    break
 
-        
 
-        keyboard = types.InlineKeyboardMarkup()
-        bt1 = 'Оплатить'
-        bt2 = 'Очитстить корзину'
-        #keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data=bas_out + id_rest+'pay'))
-        keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data = id_rest+'pay'))
-        keyboard.add(types.InlineKeyboardButton(text=bt2, callback_data='0'))
+            keyboard = types.InlineKeyboardMarkup()
+            bt1 = 'Оплатить'
+            bt2 = 'Очитстить корзину'
+            #keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data=bas_out + id_rest+'pay'))
+            keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data = id_rest+'pay'))
+            keyboard.add(types.InlineKeyboardButton(text=bt2, callback_data='clean_basket'))
 
-        bot.send_message(message.chat.id, 'Ваша корзина')
-        bot.send_message(message.chat.id, restauran_name + '\n\n' + bas_out, reply_markup = keyboard)
+            bot.send_message(message.chat.id, 'Ваша корзина')
+            bot.send_message(message.chat.id, restauran_name + '\n\n' + bas_out, reply_markup = keyboard)
 
+        else:
+            bot.send_message(message.chat.id, 'Корзина пуста\n'+
+                             'Нажмите Новый заказ, чтобы добавить что-нибудь в корзину😉👇')
 
         
 
