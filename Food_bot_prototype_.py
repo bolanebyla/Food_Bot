@@ -25,8 +25,11 @@ def start_message(message:Message):
     last_buton = 'start'
     bot.send_message(message.chat.id,'Привет, я test2_bot!', reply_markup=keyboard_main_menu())
     print ('Start')
-
+    chat_id = str(message.chat.id)
     basket = open('basket_'+str(message.chat.id)+'.txt', 'w')
+    order_list = open('order_list_'+str(message.chat.id)+'.txt', 'w')
+    order_list.write('t' + chat_id[:4]+'1000\n')
+
 
 
 
@@ -320,11 +323,20 @@ def ans(message:Message):
         s=s[:-1]
 
         s_out = id_rest + '\n' + str(chat_id)+ '\n'
-        
-
         for i in range(len(s)):
             s_out = str(s_out + s[i][:-1]) + ' шт.*'
 
+        order_list = open('order_list_' + str(chat_id)+'.txt', 'r+')
+        last_order =  order_list.readlines()#-2
+        last_order = last_order[-1][:-1]
+
+        number = last_order[5:]
+        new_number = int(number)+1
+        new_order=last_order[:-4]+str(new_number)
+        order_list.write(new_order + '\n')
+
+        order = open(new_order + '.txt', 'w')
+        order.write(s_out)
 
         
 
