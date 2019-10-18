@@ -360,15 +360,14 @@ def ans(message:Message):
         order=''
         keyboard = types.InlineKeyboardMarkup()
         id_order=message.data[:-6]
+        print(message.data)
         file=open(id_order+'.txt','r')
         data=file.readlines()
         for i in data[2]:
            if i=='*':order=order+'\n'
            else: order=order+i
         keyboard.add(types.InlineKeyboardButton(text=done, callback_data = id_order + 'done'))
-        print('1')
-        bot.send_message('925219221','Заказ №'+id_order+'\n'+order, reply_markup=keyboard)
-        print('До сюда')
+        bot.send_message('-343953923','Заказ №'+id_order+'\n'+order, reply_markup=keyboard) 
         bot.send_message(data[1],'Ваша заказ № '+id_order+' принят! Ожидайте сообщения о готовности:)')
 
         
