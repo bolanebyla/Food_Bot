@@ -348,7 +348,7 @@ def txt(message:Message):
                     bas_out = bas_out + s[i][j]
 
 
-        print()
+        print(bas_out)
         #bot.send_message(message.chat.id, "Ваша корзина:\n"+)
 
         
