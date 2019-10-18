@@ -318,31 +318,42 @@ def ans(message:Message):
     # Нажатие кнопки Оплатить (форимрование списка)
     if message.data[-3:] == 'pay':
 
-        bot.send_message(chat_id, 'Ваш заказ оплачен\nОжидайте👌')
+        
+
+
 
         id_rest = message.data[:-3]
         s_out = ''
         basket = open('basket_' + str(chat_id)+'.txt', 'r')
         s = basket.readlines()
-        s=s[:-1]
 
-        s_out = id_rest + '\n' + str(chat_id)+ '\n'
-        for i in range(len(s)):
-            s_out = str(s_out + s[i][:-1]) + ' шт.*'
+        if s !=[]:
 
-        order_list = open('order_list_' + str(chat_id)+'.txt', 'r+')
-        last_order =  order_list.readlines()#-2
-        last_order = last_order[-1][:-1]
+            bot.send_message(chat_id, 'Ваш заказ оплачен\nОжидайте👌') # Должен быть блок обработки платежа
 
-        number = last_order[5:]
-        new_number = int(number)+1
-        new_order=last_order[:-4]+str(new_number)
-        order_list.write(new_order + '\n')
+            s=s[:-1]
 
-        order = open(new_order + '.txt', 'w')
-        order.write(s_out)
+            s_out = id_rest + '\n' + str(chat_id)+ '\n'
+            for i in range(len(s)):
+                s_out = str(s_out + s[i][:-1]) + ' шт.*'
 
-        cleaning_basket(chat_id)
+            order_list = open('order_list_' + str(chat_id)+'.txt', 'r+')
+            last_order =  order_list.readlines()#-2
+            last_order = last_order[-1][:-1]
+
+            number = last_order[5:]
+            new_number = int(number)+1
+            new_order=last_order[:-4]+str(new_number)
+            order_list.write(new_order + '\n')
+
+            order = open(new_order + '.txt', 'w')
+            order.write(s_out)
+
+            cleaning_basket(chat_id)
+        else:
+             bot.send_message(chat_id, 'Этот заказ уже оплачен🤔\n'+
+                             'Нажмите Новый заказ, чтобы создать новы😜👇')
+
 
 
     #Нажатие кнопки Очистить корзину 
@@ -354,18 +365,25 @@ def ans(message:Message):
 
          #После оплаты
     if message.data[-3:]=='pay':
-        keyboard = types.InlineKeyboardMarkup()
-        agry = 'Принять'
-        order=''
-        id_order = new_order #message.data[:-3]
-        file=open(id_order+'.txt','r')
-        data=file.readlines() #data[0]- id_rest; data[1]=id_user,data[2]-order
-        for i in data[2]:
-            if i=='*':order=order+'\n'
-            else: order=order+i
-        keyboard.add(types.InlineKeyboardButton(text=agry, callback_data=id_order+'agreed'))
-        bot.send_message('891209550','Заказ №'+id_order+'\n'+order, reply_markup=keyboard)
-        file.close()
+
+        basket = open('basket_' + str(chat_id)+'.txt', 'r')
+        s = basket.readlines()
+
+        if s !=[]:
+            keyboard = types.InlineKeyboardMarkup()
+            agry = 'Принять'
+            order=''
+            id_order = new_order #message.data[:-3]
+            file=open(id_order+'.txt','r')
+            data=file.readlines() #data[0]- id_rest; data[1]=id_user,data[2]-order
+            for i in data[2]:
+                if i=='*':order=order+'\n'
+                else: order=order+i
+            keyboard.add(types.InlineKeyboardButton(text=agry, callback_data=id_order+'agreed'))
+            bot.send_message('891209550','Заказ №'+id_order+'\n'+order, reply_markup=keyboard)
+            file.close()
+
+
 
     #После подтвержения принятия заказа
     if message.data[-6:]=='agreed':
@@ -404,26 +422,21 @@ def ans(message:Message):
 # Обработка сообщений
 @bot.message_handler(content_types=['text'])
 def txt(message:Message):
-    
+    # Новый заказ
     if message.text == 'Новый заказ':
         bot.send_message(message.chat.id, "Выберите торговый центр", reply_markup = keyboard_TC_list())
 
-
+    # Корзина
     if message.text =='Корзина':
-
-        
-
         bas_out= ''
         basket = open('basket_' + str(message.chat.id)+'.txt', 'r')
         s = basket.readlines()
 
         if s !=[]:
-
             id_rest = s[-1][:9]
             for i in range(len(s)-1):
                 bas_out = str(bas_out + s[i][:-1]) + ' шт.\n'
-
-           
+    
             s[-1]=s[-1][9:-1]+' руб'
             bas_out = bas_out + '\n' + s[-1]
 
@@ -431,7 +444,6 @@ def txt(message:Message):
                 if i.id_rest == id_rest: 
                     restauran_name = i.name
                     break
-
 
             keyboard = types.InlineKeyboardMarkup()
             bt1 = 'Оплатить'
@@ -447,6 +459,13 @@ def txt(message:Message):
             bot.send_message(message.chat.id, 'Корзина пуста\n'+
                              'Нажмите Новый заказ, чтобы добавить что-нибудь в корзину😉👇')
 
+    # Поиск по словам
+    if message.text.lower() in str(Menu.category_list).lower():
+        keyboard = types.InlineKeyboardMarkup() 
+        for i in Menu.menu_list:
+            if message.text.lower() == str(i.menu[0][0]).lower():
+                keyboard.add(types.InlineKeyboardButton(text=i.name_rest,callback_data=i.id_rest+'kat'))
+        bot.send_message(message.chat.id,'В этом заведении есть то, что ты ищешь😉', reply_markup=keyboard)
         
 
 

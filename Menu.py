@@ -34,3 +34,7 @@ Shavuha_Petr2.add_element('Бухлишко', 'Водка', '99', 'Shavuha_Petr2
 
 
 menu_list = [KFC, Shavuha_Petr2]
+
+category_list = []
+for i in menu_list:
+    category_list = category_list + i.category
