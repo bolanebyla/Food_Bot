@@ -231,7 +231,6 @@ def ans(message:Message):
         bot.send_message(chat_id, 'Добавлено в корзину:\n' + food_name + '1 шт.')
 
         if f:
-            print('Добавлена водка')
             s=s+[food_name+' 1\n']
             basket = open ('basket_'+str(chat_id)+'.txt', 'w')
             for i in range(len(s)):
@@ -356,8 +355,18 @@ def txt(message:Message):
             if i.id_rest == id_rest: 
                 restauran_name = i.name
                 break
+
+        
+
+        keyboard = types.InlineKeyboardMarkup()
+        bt1 = 'Оплатить'
+        bt2 = 'Очитстить корзину'
+        keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data='0'))
+        keyboard.add(types.InlineKeyboardButton(text=bt2, callback_data='0'))
+
         bot.send_message(message.chat.id, 'Ваша корзина')
-        bot.send_message(message.chat.id, restauran_name + '\n\n' + bas_out)
+        bot.send_message(message.chat.id, restauran_name + '\n\n' + bas_out, reply_markup = keyboard)
+
 
         
 
