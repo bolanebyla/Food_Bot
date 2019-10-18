@@ -338,6 +338,53 @@ def ans(message:Message):
         order = open(new_order + '.txt', 'w')
         order.write(s_out)
 
+
+         #После оплаты
+    if message.data[-3:]=='pay':
+        keyboard = types.InlineKeyboardMarkup()
+        agry = 'Принять'
+        order=''
+        id_order = new_order #message.data[:-3]
+        file=open(id_order+'.txt','r')
+        data=file.readlines() #data[0]- id_rest; data[1]=id_user,data[2]-order
+        for i in data[2]:
+            if i=='*':order=order+'\n'
+            else: order=order+i
+        keyboard.add(types.InlineKeyboardButton(text=agry, callback_data=id_order+'agreed'))
+        bot.send_message('891209550','Заказ №'+id_order+'\n'+order, reply_markup=keyboard)
+        file.close()
+
+    #После подтвержения принятия заказа
+    if message.data[-6:]=='agreed':
+        done='Выполнен'
+        order=''
+        keyboard = types.InlineKeyboardMarkup()
+        id_order=message.data[:-6]
+        file=open(id_order+'.txt','r')
+        data=file.readlines()
+        for i in data[2]:
+           if i=='*':order=order+'\n'
+           else: order=order+i
+        keyboard.add(types.InlineKeyboardButton(text=done, callback_data = id_order + 'done'))
+        print('1')
+        bot.send_message('925219221','Заказ №'+id_order+'\n'+order, reply_markup=keyboard)
+        print('До сюда')
+        bot.send_message(data[1],'Ваша заказ № '+id_order+' принят! Ожидайте сообщения о готовности:)')
+
+        
+
+    # Когда заказ выполнен
+    if message.data[-4:]=='done':
+        id_order=message.data[:9]
+        order=''
+        file=open(id_order+'.txt','r')
+        data=file.readlines()
+        for i in data[2]:
+           if i=='*':order=order+'\n'
+           else: order=order+i
+        bot.send_message(data[1],'Ваша заказ № '+id_order+' готов! Пройдите к стойке приема)')
+        file.close()
+
         
 
 
