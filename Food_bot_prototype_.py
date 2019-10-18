@@ -159,7 +159,7 @@ def ans(message:Message):
     if message.data[-6:] == 'name_f':
         id_rest = message.data[:9]
         category = message.data[9:-6]
-        print(category)
+
         for i in Menu.menu_list:
             if id_rest == i.id_rest:
                 keyboard_menu_list(i, category, chat_id)
@@ -198,17 +198,13 @@ def ans(message:Message):
         basket = open('basket_' + str(chat_id)+'.txt', 'r')
 
         s = basket.readlines()
-        print('После нажатия кнопки =', s)
+
         if s==[]:
             s=[food_name+' 0\n']
             sum = 0
         else:
-            print('Когда что-то есть')
-            print(s[-1])
             sum = int(s[-1][16:-1])
-
             s = s[:-1]
-            print(s)
             
         l = len(food_name)
         
@@ -238,10 +234,6 @@ def ans(message:Message):
             sum = sum +int(food_prise)
 
         basket.write(id_rest_new+'Итого: '+str(sum)+'\n')
-
-
-
-    
 
 
     # Нажатие кнопки Удалить из корзину 1 шт.
@@ -278,17 +270,14 @@ def ans(message:Message):
         basket = open('basket_' + str(chat_id)+'.txt', 'r')
 
         s = basket.readlines()
-        print('После нажатия кнопки dell = ', s)
+
         if s==[]:
             s=[food_name+' 0\n']
             sum = 0
              
         else:
-            print(s[-1])
             sum = int(s[-1][16:-1])
-
             s = s[:-1]
-            print(s)
             
         l = len(food_name)
         
@@ -309,7 +298,6 @@ def ans(message:Message):
                     basket.write(s[i])
                 break 
 
-        print (kol)
         if kol!=0 or w:
             bot.send_message(chat_id, 'Удалено из корзины:\n' + food_name + '1 шт.')
 
@@ -317,6 +305,30 @@ def ans(message:Message):
             bot.send_message(chat_id, 'Этого элемента ещё нет в корзине')
 
         basket.write(id_rest_new+'Итого: '+str(sum)+'\n')
+
+
+
+    # Нажатие кнопки Оплатить (форимрование списка)
+    if message.data[-3:] == 'pay':
+
+        bot.send_message(chat_id, 'Ваш заказ оплачен\nОжидайте👌')
+
+        id_rest = message.data[:-3]
+        s_out = ''
+        basket = open('basket_' + str(chat_id)+'.txt', 'r')
+        s = basket.readlines()
+        s=s[:-1]
+
+        s_out = id_rest + '\n' + str(chat_id)+ '\n'
+        
+
+        for i in range(len(s)):
+            s_out = str(s_out + s[i][:-1]) + ' шт.*'
+
+
+        
+
+
 
 
 
@@ -341,16 +353,12 @@ def txt(message:Message):
         s = basket.readlines()
         id_rest = s[-1][:9]
         for i in range(len(s)-1):
-            #for j in range (len(s[i])):
-            #print(i)
             bas_out = str(bas_out + s[i][:-1]) + ' шт.\n'
 
            
         s[-1]=s[-1][9:-1]+' руб'
         bas_out = bas_out + '\n' + s[-1]
 
-
-        print(bas_out)
         for i in Restaurants.res_list:
             if i.id_rest == id_rest: 
                 restauran_name = i.name
@@ -361,7 +369,8 @@ def txt(message:Message):
         keyboard = types.InlineKeyboardMarkup()
         bt1 = 'Оплатить'
         bt2 = 'Очитстить корзину'
-        keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data='0'))
+        #keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data=bas_out + id_rest+'pay'))
+        keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data = id_rest+'pay'))
         keyboard.add(types.InlineKeyboardButton(text=bt2, callback_data='0'))
 
         bot.send_message(message.chat.id, 'Ваша корзина')
