@@ -22,7 +22,7 @@ bot = telebot.TeleBot(config.TOKEN)
 @bot.message_handler(commands=['start'])
 def start_message(message:Message):
 
-    print(message.from_user)
+    print('Нажали старт', message.from_user)
 
     chat_id = str(message.chat.id)
     bot.send_message(message.chat.id,'Привет, я твой помощник при заказе еды! ' + 
@@ -30,8 +30,6 @@ def start_message(message:Message):
                      'Скорее жми на "Новый заказ"!', reply_markup=keyboard_main_menu())
     info(chat_id)
 
-    
-    #basket = open('basket_'+str(message.chat.id)+'.txt', 'w')
     cleaning_basket(chat_id)
 
     order_list = open('order_list_'+str(message.chat.id)+'.txt', 'w')
@@ -39,6 +37,7 @@ def start_message(message:Message):
 
 @bot.message_handler(commands=['help'])
 def start_message(message:Message):
+    print('Нажали help chat_id:', message.chat.id)
     info(message.chat.id)
 
 def cleaning_basket(chat_id):
@@ -381,11 +380,11 @@ def ans(message:Message):
                 if i=='*':order=order+'\n'
                 else: order=order+i
             keyboard.add(types.InlineKeyboardButton(text=agry, callback_data=id_order+'agreed'))
-            bot.send_message('891209550', 'Заказ №'+id_order+'\n'+order, reply_markup=keyboard)#891209550
+            bot.send_message('-332032159', 'Заказ №'+id_order+'\n'+order, reply_markup=keyboard)#891209550
             file.close()
 
 
-    #После подтвержения принятия заказа
+    #Подтвержения принятия заказа
     if message.data[-6:]=='agreed':
         done='Выполнен'
         order=''
@@ -397,7 +396,7 @@ def ans(message:Message):
            if i=='*':order=order+'\n'
            else: order=order+i
         keyboard.add(types.InlineKeyboardButton(text=done, callback_data = id_order + 'done'))
-        bot.send_message('-343953923','Заказ №'+id_order+'\n'+order, reply_markup=keyboard) 
+        bot.send_message('-363605034','Заказ №'+id_order+'\n'+order, reply_markup=keyboard) #-343953923 
         bot.send_message(data[1],'Ваша заказ № '+id_order+' принят!\n' +
                         'Ожидайте сообщения о готовности😊🕐')
 
@@ -487,5 +486,5 @@ def txt(message:Message):
         
 
 
-
+print('Бот запущен')
 bot.polling()
