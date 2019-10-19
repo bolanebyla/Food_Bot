@@ -13,7 +13,6 @@ from telebot import types
 from telebot.types import Message
 
 
-
 bot = telebot.TeleBot(config.TOKEN)
 
 
@@ -22,20 +21,32 @@ bot = telebot.TeleBot(config.TOKEN)
 # /start
 @bot.message_handler(commands=['start'])
 def start_message(message:Message):
-    last_buton = 'start'
-    bot.send_message(message.chat.id,'Привет, я test2_bot!', reply_markup=keyboard_main_menu())
-    print ('Start')
+
+    print(message.from_user)
+
     chat_id = str(message.chat.id)
+    bot.send_message(message.chat.id,'Привет, я твой помощник при заказе еды! ' + 
+                     'Ты проголодался и хочешь быстро перекусить? Тогда тебе сюда! '+
+                     'Скорее жми на "Новый заказ"!', reply_markup=keyboard_main_menu())
+    info(chat_id)
+
+    
     #basket = open('basket_'+str(message.chat.id)+'.txt', 'w')
     cleaning_basket(chat_id)
 
     order_list = open('order_list_'+str(message.chat.id)+'.txt', 'w')
     order_list.write('t' + chat_id[:4]+'1000\n')
 
+@bot.message_handler(commands=['help'])
+def start_message(message:Message):
+    info(message.chat.id)
 
 def cleaning_basket(chat_id):
      basket = open('basket_'+str(chat_id)+'.txt', 'w')
 
+def info(chat_id):
+    bot.send_message(chat_id, 'Для твоего удобства создан поиск ресторанов и кафе по интересующей тебя категории блюд. ' +
+                     'Просто введи категорию сюда , и я подберу тебе список ресторанов, где есть такие блюда!')
 
 
 # Основное меню
@@ -156,7 +167,6 @@ def ans(message:Message):
     #после выбора ресторана
     if message.data[-3:] == 'kat':
         id_rest = message.data[:-3]
-        
         for i in Menu.menu_list:
             if id_rest == i.id_rest:
                 keyboard_category_list(i, chat_id)
@@ -229,8 +239,6 @@ def ans(message:Message):
                 for i in range(len(s)):
                     basket.write(s[i])
                 break 
-
-
         bot.send_message(chat_id, 'Добавлено в корзину:\n' + food_name + '1 шт.')
 
         if f:
@@ -317,11 +325,6 @@ def ans(message:Message):
 
     # Нажатие кнопки Оплатить (форимрование списка)
     if message.data[-3:] == 'pay':
-
-        
-
-
-
         id_rest = message.data[:-3]
         s_out = ''
         basket = open('basket_' + str(chat_id)+'.txt', 'r')
@@ -349,11 +352,10 @@ def ans(message:Message):
             order = open(new_order + '.txt', 'w')
             order.write(s_out)
 
-            cleaning_basket(chat_id)
+            
         else:
              bot.send_message(chat_id, 'Этот заказ уже оплачен🤔\n'+
                              'Нажмите Новый заказ, чтобы создать новы😜👇')
-
 
 
     #Нажатие кнопки Очистить корзину 
@@ -362,14 +364,13 @@ def ans(message:Message):
         bot.send_message(chat_id,'Корзина очищена😌')
 
 
-
          #После оплаты
     if message.data[-3:]=='pay':
 
         basket = open('basket_' + str(chat_id)+'.txt', 'r')
         s = basket.readlines()
-
         if s !=[]:
+            cleaning_basket(chat_id)
             keyboard = types.InlineKeyboardMarkup()
             agry = 'Принять'
             order=''
@@ -380,9 +381,8 @@ def ans(message:Message):
                 if i=='*':order=order+'\n'
                 else: order=order+i
             keyboard.add(types.InlineKeyboardButton(text=agry, callback_data=id_order+'agreed'))
-            bot.send_message('891209550','Заказ №'+id_order+'\n'+order, reply_markup=keyboard)
+            bot.send_message('891209550', 'Заказ №'+id_order+'\n'+order, reply_markup=keyboard)#891209550
             file.close()
-
 
 
     #После подтвержения принятия заказа
@@ -391,7 +391,6 @@ def ans(message:Message):
         order=''
         keyboard = types.InlineKeyboardMarkup()
         id_order=message.data[:-6]
-        print(message.data)
         file=open(id_order+'.txt','r')
         data=file.readlines()
         for i in data[2]:
@@ -416,18 +415,20 @@ def ans(message:Message):
                          'Приятного аппетита☺️')
         file.close()
 
-        
 
-
+    
 # Обработка сообщений
 @bot.message_handler(content_types=['text'])
 def txt(message:Message):
+    b = True # флаг проверки 'понял ли бот'
     # Новый заказ
     if message.text == 'Новый заказ':
+        b = False
         bot.send_message(message.chat.id, "Выберите торговый центр", reply_markup = keyboard_TC_list())
 
     # Корзина
     if message.text =='Корзина':
+        b = False
         bas_out= ''
         basket = open('basket_' + str(message.chat.id)+'.txt', 'r')
         s = basket.readlines()
@@ -448,7 +449,6 @@ def txt(message:Message):
             keyboard = types.InlineKeyboardMarkup()
             bt1 = 'Оплатить'
             bt2 = 'Очитстить корзину'
-            #keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data=bas_out + id_rest+'pay'))
             keyboard.add(types.InlineKeyboardButton(text=bt1, callback_data = id_rest+'pay'))
             keyboard.add(types.InlineKeyboardButton(text=bt2, callback_data='clean_basket'))
 
@@ -460,16 +460,32 @@ def txt(message:Message):
                              'Нажмите Новый заказ, чтобы добавить что-нибудь в корзину😉👇')
 
     # Поиск по словам
-    if message.text.lower() in str(Menu.category_list).lower():
-        keyboard = types.InlineKeyboardMarkup() 
-        for i in Menu.menu_list:
-            if message.text.lower() == str(i.menu[0][0]).lower():
-                keyboard.add(types.InlineKeyboardButton(text=i.name_rest,callback_data=i.id_rest+'kat'))
-        bot.send_message(message.chat.id,'В этом заведении есть то, что ты ищешь😉', reply_markup=keyboard)
+    s = ''
+    f = False # Флаг "нахождения категории по введённому слову" 
+    for i in Menu.menu_list:
+
+        for k in i.category:
+            if message.text.lower() == k.lower():
+                f = True 
+                b = False
+                s = s + i.name_rest + ' находится в ТЦ:\n'
+                for j in Restaurants.res_list:
+                    if j.name == i.name_rest:
+                        s = s + j.TC+'\n'
+
+        #if message.text.lower() in i.category2.lower():
+    if f:
+        bot.send_message(message.chat.id, 'Список заведений где ты сможешь это найти:')
+        bot.send_message(message.chat.id,s)
+        bot.send_message(message.chat.id, 'Не благодари 😘')
+    
+    if b:
+        bot.send_message(message.chat.id, 'Я тебя не понял😢')
+        bot.send_message(message.chat.id, 'Лечше сделай новый заказ😊')
+
+
         
 
 
+
 bot.polling()
-
-
-
