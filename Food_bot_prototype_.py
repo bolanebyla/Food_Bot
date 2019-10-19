@@ -16,8 +16,6 @@ from telebot.types import Message
 bot = telebot.TeleBot(config.TOKEN)
 
 
-
-
 # /start
 @bot.message_handler(commands=['start'])
 def start_message(message:Message):

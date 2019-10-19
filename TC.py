@@ -17,4 +17,4 @@ Noviy = TC('Новый')
 Galaktika = TC('Галактика')
 Galaktika.set_FC(['2 этаж','3 этаж'])
 
-TC_list = [MK,Noviy]
+TC_list = [MK, Noviy, Galaktika]
