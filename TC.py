@@ -14,7 +14,7 @@ MK = TC('Модный квартал')
 
 Noviy = TC('Новый')
 
-#Galaktika = TC('Галактика')
-#Galaktika.set_FC(['2 этаж','3 этаж'])
+Galaktika = TC('Галактика')
+Galaktika.set_FC(['2 этаж','3 этаж'])
 
 TC_list = [MK,Noviy]
