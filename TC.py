@@ -12,10 +12,9 @@ class TC():
 
 MK = TC('Модный квартал')
 
-Komsomol = TC('Комсомол')
-Komsomol.set_FC(['2 этаж','3 этаж'])
+Noviy = TC('Новый')
 
-Novi = TC('Новый')
-Novi.set_FC(['2 этаж','3 этаж'])
+#Galaktika = TC('Галактика')
+#Galaktika.set_FC(['2 этаж','3 этаж'])
 
-TC_list = [MK,Komsomol,Novi]
+TC_list = [MK,Noviy]
